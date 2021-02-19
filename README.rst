@@ -1,8 +1,7 @@
 Template
 ========
 
-$project will solve your problem of where to start with documentation,
-by providing a basic explanation of how to do it easily.
+Cell-Geo-Tracker Example aims to provide a concrete end-to-end example of Serverless Api.
 
 Look how easy it is to use:
 

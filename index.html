@@ -1,0 +1,254 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>nordic-proxy-api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	      <link rel="stylesheet" href="./styles/style.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="./" class="navbar-brand">nordic-proxy-api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content getting-started">
+                   <div class="content-data">
+
+<h2 id="unwiredlabs-geolocator-serverless-api-proxy">Unwiredlabs GeoLocator Serverless Api Proxy</h2>
+<p>
+</p>
+
+<h3 id="intro">Intro</h3>
+<p>Serverless API proxy for the Unwired Labs using TypeScript, that returns the same location to devices with the same cellId for 30 days (including unknown cells).</p>
+<div><pre class="line-numbers"><code class="language-typescript">const cellId = ({
+  lac,
+  mcc,
+  mnc,
+  cell,
+}: {
+  lac: number;
+  mcc: number;
+  mnc: number;
+  cid: number;
+}) =&gt; `${cid}-${mcc}-${mnc}-${lac}`;</code></pre></div><p>The API should provide a method to query by cellId using HTTPS:</p>
+<div><pre class="line-numbers"><code class="language-none">GET /byCellId?cellId=26902-242-2-2305</code></pre></div><p>it should return a JSON object with the latitude (<code>lat</code>), longitude (<code>lng</code>) and accuracy (<code>acc</code>) of the cell or return an error.</p>
+<div><pre class="line-numbers"><code class="language-json">{
+  &quot;lng&quot;: 10.418966,
+  &quot;lat&quot;: 63.432929,
+  &quot;acc&quot;: 1137
+}</code></pre></div><h2 id="use-case">Use Case</h2>
+<blockquote>
+<p>Implement a serverless REST API proxy, that users can install in their own cloud account.</p>
+</blockquote>
+<p>The <em>Asset Tracker Cloud Example</em> is a reference end-to-end implementation of a real-world IoT product, which enables customers to set up the necessary cloud resources for a <em>Cat Tracker</em>, including a web app, in their own cloud accounts.</p>
+<p>One important feature of the <em>Cat Tracker</em> is to locate the cat. However, cats will be in places (e.g. indoors or underground) where GPS location cannot be acquired. To get a location estimate nevertheless the location of the nearest cell tower(s) can be used: the nRF9160 modem makes the ID of the cell tower it is connected to available. The location of cell towers is known, and companies like <a href="https://unwiredlabs.com/">Unwired Labs</a> provide a location API which allows resolving cell IDs to coordinates.</p>
+<p>Given</p>
+<ul>
+<li>a cell id, e.g. <code>20227</code></li>
+<li>a local area code, e.g. <code>30401</code></li>
+<li>a mobile network code (which identifies the network operator), e.g. <code>1</code> for Telenor</li>
+<li>a mobile country code (which identifies the country the device is currently in), e.g. <code>242</code> for Norway</li>
+</ul>
+<p>this cell can be resolved to a geolocation using the <a href="https://unwiredlabs.com/api#documentation">API</a>:</p>
+<div><pre class="line-numbers"><code class="language-bash">http https://eu1.unwiredlabs.com/v2/process.php &lt;&lt;&lt; &#39;{
+    &quot;token&quot;: &quot;&lt;your token here&gt;&quot;,
+    &quot;radio&quot;: &quot;lte&quot;,
+    &quot;mcc&quot;: 242,
+    &quot;mnc&quot;: 1,
+    &quot;cells&quot;: [{
+        &quot;lac&quot;: 30401,
+        &quot;cid&quot;: 20227
+    }]
+}&#39;</code></pre></div><blockquote>
+<p><em>Note:</em> Register a free account on <a href="https://unwiredlabs.com/trial">https://unwiredlabs.com/trial</a> to acquire your token.</p>
+</blockquote>
+<div><pre class="line-numbers"><code class="language-json">{
+  &quot;accuracy&quot;: 5973,
+  &quot;balance&quot;: 99,
+  &quot;fallback&quot;: &quot;scf&quot;,
+  &quot;lat&quot;: 63.434238,
+  &quot;lon&quot;: 10.473029,
+  &quot;status&quot;: &quot;ok&quot;
+}</code></pre></div><p>This returns 63.434238,10.473029 as the geolocation for the cell tower.</p>
+<h2 id="to-do-list">To Do List</h2>
+<ul>
+<li><p>Provide installation instructions for users, assume that they have some experience setting up cloud solutions, have a working cloud account and a typical development environment with the Node.js 14.</p>
+<ul>
+<li>The API proxy should use the users API token to authenticate against the upstream UnwiredLabs API. The API proxy will be part of the entire solution and queried from backend resources. Therefore no user-based authentication is needed. Provide and document a suitable authentication for integrating the service with other backend components of the Asset Tracker Cloud Example. You can assume that they run within the same cloud platform and account.</li>
+</ul>
+</li>
+<li><p>Within 1 working day: 
+  -send a rough estimate when you will be able to deliver the solution to <a href="mailto:Markus.Tacker@NordicSemi.no">Markus.Tacker@NordicSemi.no</a>. Please reserve as much time as you need, however please keep an eye on the application due date.</p>
+</li>
+<li><p>On completion: a PR with the solution in the private GitHub repository.</p>
+</li>
+</ul>
+<h2 id="technologies">Technologies</h2>
+<ul>
+<li><a href="https://aws.amazon.com/lambda">AWS Lambda</a></li>
+<li><a href="https://aws.amazon.com/dynamodb">AWS DynamoDB</a></li>
+<li><a href="https://serverless.com/framework/docs/providers/aws/">Serverless</a></li>
+<li><a href="https://docs.nestjs.com/">NestJS</a></li>
+<li><a href="https://github.com/hardyscc/nestjs-dynamoose">NestJS Dynamoose</a></li>
+</ul>
+<h2 id="usage">Usage</h2>
+<div><pre class="line-numbers"><code class="language-bash">git clone () &lt;Your_Project_Name&gt;
+cd &lt;Your_Project_Name&gt;
+
+npm install</code></pre></div><p>Run this dor Doc</p>
+<div><pre class="line-numbers"><code class="language-bash"> npx &#64;compodoc/compodoc -p tsconfig.json -s
+npm install</code></pre></div><p>After that find and replace <code>aws-nestjs-starter</code> to your project name on the following files:</p>
+<ul>
+<li>package.json</li>
+<li>serverless.yml</li>
+<li>.env</li>
+</ul>
+<h2 id="setup-aws-credentials">Setup AWS Credentials</h2>
+<ol>
+<li><p><a href="https://serverless.com/framework/docs/providers/aws/guide/credentials#sign-up-for-an-aws-account">Sign up for an AWS account</a></p>
+</li>
+<li><p>Login to your AWS account and go to the <strong>Identity &amp; Access Management (IAM)</strong> page.</p>
+</li>
+<li><p>Click on <strong>Users</strong> and then <strong>Add user</strong>. Enter a name in the first field to remind you this User is related to the Serverless Framework, like <code>serverless-admin</code>. Enable <strong>Programmatic access</strong> by clicking the checkbox. Click <strong>Next</strong> to go through to the Permissions page. Click on <strong>Attach existing policies directly</strong>. Search for and select <strong>AdministratorAccess</strong> then click <strong>Next: Review</strong>. Check to make sure everything looks good and click <strong>Create user</strong>.</p>
+</li>
+<li><p>View and copy the <strong>API Key &amp; Secret</strong> to a temporary place. You&#39;ll need it in the next step.</p>
+</li>
+</ol>
+<h2 id="setup-workstation">Setup Workstation</h2>
+<p>Install AWS CLI</p>
+<ul>
+<li>Windows: <code>choco install awscli</code></li>
+<li>MacOS: <code>brew install awscli</code></li>
+</ul>
+<p>Config AWS CLI</p>
+<div><pre class="line-numbers"><code class="language-bash">$ aws configure
+
+AWS Access Key ID [****************TKYQ]:
+AWS Secret Access Key [****************yNO2]:
+Default region name [None]:
+Default output format [None]:</code></pre></div><blockquote>
+<p>Please enter your <strong>AWS Access Key ID</strong> and <strong>AWS Secret Access Key</strong></p>
+</blockquote>
+<h2 id="deployment">Deployment</h2>
+<div><pre class="line-numbers"><code class="language-bash"># deploy to AWS
+$ npm run deploy</code></pre></div><h2 id="local-offline-development">Local Offline Development</h2>
+<div><pre class="line-numbers"><code class="language-bash"># install dynamodb local
+$ npm run ddb:install
+
+# start serverless-offline server
+$ npm run sls:start
+
+# start serverless-offline server and connect to online dynamodb
+$ npm run sls:online</code></pre></div><h2 id="local-nestjs-development---optional">Local NestJS Development - (Optional)</h2>
+<div><pre class="line-numbers"><code class="language-bash"># install dynamodb local
+$ npm run ddb:install
+
+# start dynamodb local
+$ npm run ddb:start
+
+# start local nestjs server
+$ npm start
+
+# start local nestjs server in watch mode
+$ npm run start:watch
+
+# start local nestjs server and connect to online dynamodb
+$ npm run start:online</code></pre></div><h2 id="unit-testing">Unit Testing</h2>
+<div><pre class="line-numbers"><code class="language-bash"># run unit test
+$ npm test
+
+# run unit test with coverage
+$ npm run test:cov</code></pre></div><h2 id="e2e-testing">E2E Testing</h2>
+<div><pre class="line-numbers"><code class="language-bash"># start dynamodb local
+$ npm run ddb:start
+
+# run unit test with coverage
+$ npm run test:e2e</code></pre></div><h2 id="restful-endpoint-test">RESTful Endpoint Test</h2>
+<blockquote>
+<p>Please remove <code>/dev</code> from path if test using local nestjs mode</p>
+</blockquote>
+<div><pre class="line-numbers"><code class="language-none">curl -X GET &#39;http://localhost:3000/dev/byCellId?cellId=26902-242-2-2305&#39;</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_URL = 'index.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
+       <script src="./js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
+       <script src="./js/menu-wc.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+       <script src="./js/libs/zepto.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
